@@ -11,7 +11,7 @@ const svg = d3.select("svg")
 const map = svg.append("g");
 const geo = map.append("g")
 
-d3.json("/static/earth.json").then(function(json) {
+d3.json("./static/earth.json").then(function(json) {
 
 const projection = d3.geoNaturalEarth1();
 const path = d3.geoPath(projection); // for SVG
