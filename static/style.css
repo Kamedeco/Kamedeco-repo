@@ -1,0 +1,202 @@
+li { 
+    list-style: none;
+}
+
+.main {
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+#sidebar {
+    max-width: 300px;
+    min-width: 300px;
+    transition: all 0.35s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(255, 255, 255);
+}
+
+#sidebar a {
+    text-decoration: none;
+}
+
+#sidebar.collapsed {
+    margin-left: -280px;
+}
+
+.toggler-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: 0;
+}
+
+.sidebar-nav {
+    flex: 1 1 auto;
+}
+
+.sidebar-logo {
+    padding: 1rem 1.5rem;
+    text-align: center;
+}
+
+.sidebar-logo a {
+    color: black;
+    font-weight: 400;
+    font-size: 1.25rem;
+}
+
+.sidebar-header {
+    color: rgb(0, 0, 0);
+    font-size: 1rem;
+    padding: 0.35rem 1.625rem;
+    font-weight: bold;
+    cursor: default;
+}
+
+a.sidebar-link {
+    padding: 0.35rem 1.625rem;
+    color: black;
+    position: relative;
+    transition: all 0.35s;
+    display: block;
+}
+
+a.sidebar-text {
+    padding: 0.35rem 1.625rem;
+    color: black;
+    position: relative;
+    transition: all 0.35s;
+    display: block;
+    cursor: default;
+}
+
+a.sidebar-link:hover {
+    background-color: rgb(213, 213, 213);
+} 
+
+.sidebar-link[data-bs-toggle="collapse"]::after {
+    border: solid;
+    border-width: 0 0.075rem 0.075rem 0;
+    content: "";
+    display: inline-block;
+    padding: 2px;
+    position: absolute;
+    right: 1.5rem;
+    top: 1.4rem;
+    transform: rotate(-135deg);
+    transition: all 0.2s ease-out;
+}
+
+.sidebar-link[data-bs-toggle="collapse"].collapsed::after {
+    transform: rotate(45deg);
+    transition: all 0.2s ease-out;
+}
+
+a.selected-btn {
+    background-color: rgb(213, 213, 213);
+    transition: all 0.2s ease-in;
+}
+
+a.disabled-btn { 
+    pointer-events: none;
+    background-color: rgb(213, 213, 213);
+    transition: all 0.2s ease-in;
+}
+
+#fact-btn {
+    cursor: pointer;
+}
+
+a.locked-text {
+    color: rgb(141, 141, 141);
+}
+
+i.info-icon {
+    width: 5px;
+    cursor: help;
+}
+
+#links-sidebar {
+    max-width: 300px;
+    min-width: 300px;
+    min-height: 500px;
+    transition: all 0.35s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(255, 255, 255);
+}
+
+table.table>tbody>tr.link-row td{
+    cursor: default;
+}
+
+table.table>tbody>tr.link-row:hover td {
+    background-color: rgb(231, 231, 231);
+}
+
+input[type=color] {
+    width: 25px;
+    height: 25px;
+}
+
+table.table>tbody>tr.link-selected td {
+    background-color: rgb(218, 218, 218);
+}
+
+table.table>tbody>tr.link-selected:hover td {
+    background-color: rgb(231, 231, 231);
+}
+
+.create-btn {
+    cursor: pointer;
+    background-color: rgb(58, 62, 95);
+}
+
+.create-btn:hover {
+    background-color: rgb(40, 86, 111);
+}
+
+span {
+    cursor: default;
+}
+
+.fa-pen-to-square {
+    cursor: pointer;
+}
+
+.fa-trash-can {
+    cursor: pointer;
+}
+
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+input[type='color'] {
+    width: 35px;
+    height: 35px;
+    margin: -5px;
+    padding: 0;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.cp_wrapper {
+    overflow: hidden;
+    width: 1.5rem;
+    height: 1.5rem;
+    /* optional formatting below here 
+    https://stackoverflow.com/questions/11167281/webkit-css-to-control-the-box-around-the-color-in-an-inputtype-color */
+    border-radius:50%;
+}
+
+.fa-file-lines {
+    padding-left: 10px;
+    cursor: pointer;
+}
