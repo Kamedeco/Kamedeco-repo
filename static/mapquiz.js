@@ -292,16 +292,19 @@ function searchWord(word) {
 getFact()
 
 var labelsShown = false
+const labelBtnText = document.getElementById('label-btn-text')
 
 window.showLabels = () => {
   if (labelsShown) {
     labels.style("opacity", 0)
     labelBoxes.style('opacity', 0)
     labelsShown = false
+	labelBtnText.textContent = 'Show Labels'
   } else {
     labels.style("opacity", 1)
     labelBoxes.style('opacity', 1)
     labelsShown = true
+	labelBtnText.textContent = 'Hide Labels'
   }
   
 }
