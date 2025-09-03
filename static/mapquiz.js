@@ -605,6 +605,9 @@ function reset() {
     .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
   resetButton.transition().style("opacity", "0")
     .style("cursor", "default")
+  labels.style("opacity", 1)
+  labelBoxes.style('opacity', 1)
+
   
 
   d3.select("#ClickCountryText")
