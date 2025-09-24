@@ -1,39 +1,58 @@
 
-const width = 1000;
+const width = 1038;
 const height = 500;
 
 const svg = d3.select("svg")
   // SVG SCALING https://chartio.com/resources/tutorials/how-to-resize-an-svg-when-the-window-is-resized-in-d3-js/
   // Viewbox explanaition https://stackoverflow.com/questions/14553392/perplexed-by-svg-viewbox-width-height-etc 
   .attr("viewBox", [0, 0, width, height])
+  .style('background-color', '#ffffffff')
 
 // g svg element explanation https://jenkov.com/tutorials/svg/g-element.html
 const map = svg.append("g");
 const geo = map.append("g")
 
-d3.json("./static/testEarth.json").then(function(json) {
+Promise.all([
+  d3.json("./static/adjearth.json"),
+  d3.json("./static/majority-outlines.json"),
+]).then(function([json, majorityOutlines]) {
 
-const projection = d3.geoNaturalEarth1();
+const projection = d3.geoNaturalEarth1()
+  .rotate([-12, 0]); // Rotate Map so pacific islands are shown
+
 const path = d3.geoPath(projection); // for SVG
+
+const projection1 = d3.geoNaturalEarth1()
+  .rotate([-12, 0]);
+
+const path1 = d3.geoPath(projection1)
 
 var validCountries = [];
 var invalidCountries = [];
 var smallCountries = [];
-var excludedContries = ["Samoa", "Tonga", "Kiribati", "Fiji"];
+var customOutlines = [];
+var count = 0;
+var countrynames = [];
+var sbrgnList = [];
+
+const customIsoList = majorityOutlines['features'].map(obj => obj['properties']['iso_a2'])
 
 // Sorting geojson data
 const keyTypes = ["Country", "Sovereign country", "Sovereignty"];
 
 // Sort countries json 
 for (const key in json["features"]) {
-    if (excludedContries.includes(json["features"][key]["properties"]["name"])) {
-      continue
-    }
     if (keyTypes.includes(json["features"][key]["properties"]["type"])) {
       if (path.area(json["features"][key]) < 1.5) {
-        console.log("TOO SMALL: " + json["features"][key]["properties"]["name"])
-        smallCountries.push(json["features"][key]);
+        if (!customOutlines.includes(json["features"][key]["properties"]["iso_a2_eh"])) {
+          if (!customIsoList.includes(json["features"][key]["properties"]["iso_a2_eh"])) {
+            console.log("TOO SMALL: " + json["features"][key]["properties"]["name"])
+            smallCountries.push(json["features"][key]);
+          }
+        }
       }
+      count++;
+      countrynames.push(json["features"][key]["properties"]["name"])
       validCountries.push(json["features"][key]);
 
       if (countryDetails.find(object => object.alpha2Code === json["features"][key]["properties"]["iso_a2_eh"]) == null) {
@@ -43,7 +62,16 @@ for (const key in json["features"]) {
       invalidCountries.push(json["features"][key]); 
     }
 } 
-
+console.log("COUNT IS: " + count)
+// Normalize custom outlines file to match natural earth properties
+for (const obj of majorityOutlines["features"]) {
+  var iso = obj['properties']['iso_a2']
+  var item = validCountries.find(object => object['properties']['iso_a2_eh'] === iso)
+  obj['properties'] = item['properties']
+  customOutlines.push(obj)
+}
+console.log(customOutlines)
+console.log(countrynames)
 // Regions to play
 const regions = ["North_America", "South_America", "Africa", "Europe", "Caribbean", "Asia", "Western_Asia", "Oceania"];
 // COMPLETE REGION LIST -> ['Central_America', 'Caribbean', 'Northern_America', 'South-Eastern_Asia', 'Western_Asia', 'Southern_Asia', 'Eastern_Asia', 'Central_Asia', 'Seven_seas_(open_ocean)', 'South_America', 'Eastern_Africa', 'Northern_Africa', 
@@ -68,6 +96,21 @@ const countries = geo.append("g")
     .on("mouseover", handleMouseOver)
     .on("mouseout", handleMouseOut)
 
+const custom = geo.append("g")
+  .selectAll("path")
+  .data(majorityOutlines['features'])
+  .join("path")
+    .attr("d", path)
+    .attr("class", getClass)
+    .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
+    .style("fill-opacity", 0.5)
+    .style("stroke", "black")
+    .style("stroke-width", 0.1)
+    .style("stroke-dasharray", ("3, 1"))
+    .on("click", handleClick)
+    .on("mouseover", handleMouseOver)
+    .on("mouseout", handleMouseOut)
+    
 // Create greyed out paths for non countries
 const noncountries = geo.append("g")
   .selectAll("path")
@@ -130,7 +173,7 @@ const smallCountriesOutlines =  geo.append("g")
     .style("stroke", "#000000ff")
     .style("stroke-width", 0.1)
     .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
-    .style("fill-opacity", 0.75)
+    .style("fill-opacity", 0.5)
     .on("click", handleClick)
     .on("mouseover", handleMouseOver)
     .on("mouseout", handleMouseOut)
@@ -188,8 +231,15 @@ const clickOnText = UI.append("text")
   .attr("fill", "white")
   .attr("opacity", 1) 
 
+// tooltip
+//     .style("display", "block")
+//     .style("left", `${xPos + 150}px`)
+//     .style("top", `${yPos + 50}px`)
+//     .style("background-color", myColor(currentName))
+//     .html(`<strong>Date:</strong> ${d.name}`)
+
 // See if country region is in regions in play, asigns class
-function getClass(d) {
+function getClass(d) { 
   if (regions == null) {
     return d.properties.subregion.replaceAll(" ", "_")
   } else if (regions.includes(d.properties.subregion.replaceAll(" ", "_"))) {
@@ -204,8 +254,13 @@ function getClass(d) {
 }
 
 // Color in subregions of country
+// INEFFECTIVE since checks every time you click. make json durring initial processing
+// Each dclass has an array of unique subregions
+// If subregion length is null just return myColor
 function colorSubregions(d){
   var dclass = d3.select(this).attr("class");
+  console.log('SUBREGION IS: ' + d.properties.subregion)
+  console.log(d)
 
   var region = d3.selectAll("." + dclass)["_groups"][0] 
   var subregions = [];
@@ -223,6 +278,9 @@ function colorSubregions(d){
   var subregionColor = d3.scaleOrdinal().domain(subregions)
     .range(["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fec5a6ff","#b3ffe9ff","#e5d8bd","#fddaec","#f2f2f2"])
 
+  console.log('check')
+  console.log(d.properties.subregion)
+  console.log(subregions)
   return subregionColor(d.properties.subregion)
 }
 
@@ -309,7 +367,7 @@ window.showLabels = () => {
   
 }
 
-const maxScores = 3
+const maxScores = 1
 
 window.clearScores = () => {
   var scoreSelect = document.getElementById("score-mode-select")
@@ -391,8 +449,8 @@ function displayScore() {
 }
 
 // https://stackoverflow.com/questions/13939573/how-to-add-spaces-between-array-items-javascript
-excludedContriesMessage = document.getElementById('excluded-countries-message')
-excludedContriesMessage.textContent = "Excluded Countries: " + excludedContries.join(', ')
+// excludedContriesMessage = document.getElementById('excluded-countries-message')
+// excludedContriesMessage.textContent = "Excluded Countries: " + excludedContries.join(', ')
 
 window.switchMode = (btn) => {
   // Find other way to switch modes without a bunch of conditionals
@@ -555,10 +613,10 @@ function handleMouseOver(event, d) {
   var dclass = d3.select(this).attr("class");
   
   if (selectedRegion == null) {
-    d3.selectAll("." + dclass).style("opacity", "0.8");
+    d3.selectAll("." + dclass).style("opacity", "0.7");
   } else {
     if (dclass === selectedRegion){
-      d3.select(this).style("opacity", "0.8"); 
+      d3.select(this).style("opacity", "0.7"); 
     }
   }
 }
@@ -591,6 +649,7 @@ function reset() {
   // Style UI
   flag.transition()
     .style("opacity", 0)
+    .attr("xlink:href", null)
   quizBar.transition()
     .style("opacity", 0)
   clickOnText.transition()
@@ -603,6 +662,9 @@ function reset() {
   smallCountriesOutlines.transition()
     .style("opacity", "1")
     .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
+  custom.transition()
+    .style("opacity", "1")
+    .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
   resetButton.transition().style("opacity", "0")
     .style("cursor", "default")
 
@@ -610,9 +672,6 @@ function reset() {
 	  labels.style("opacity", 1)
 	  labelBoxes.style('opacity', 1)
   }
-  
-
-  
 
   d3.select("#ClickCountryText")
     .text("")
@@ -631,6 +690,10 @@ function zoomContinent(d, dclass) {
     .transition().style("opacity", "0")
   smallCountriesOutlines.filter(function() {return d3.select(this).classed(dclass);}) 
     .transition().style("fill", colorSubregions)
+  custom.filter(function() {return d3.select(this).classed(dclass);}) 
+    .transition().style("fill", colorSubregions)
+  custom.filter(function() {return !d3.select(this).classed(dclass);})
+    .transition().style("opacity", "0")
   countries.filter(function() {return !d3.select(this).classed(dclass);})
     .transition().style("fill", "#999694")
     .style("stroke", "#999694") 
@@ -726,11 +789,12 @@ function getBounds(dclass) {
 const zoom = d3.zoom()
   .scaleExtent([1, 30])
   .translateExtent([[0, 0], [width, height]])
-	.on('zoom', handleZoom);
+	.on('zoom', handleZoom)
 
 function handleZoom(event) {
 		map.attr('transform', event.transform);
 }
-
+console.log('seperate')
+console.log(smallCountries.map(obj => obj['properties']['name']))
 svg.call(zoom);
 });
