@@ -800,9 +800,6 @@ const zoom = d3.zoom()
     if (event.type === 'mousedown' || event.type === 'pointerdown') {
       return event.button === 2; // 0=left, 1=middle, 2=right
     }
-
-    // disable dblclick zoom
-    return false;
   })
 
 function handleZoom(event) {
