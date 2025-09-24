@@ -7,10 +7,13 @@ const svg = d3.select("svg")
   // Viewbox explanaition https://stackoverflow.com/questions/14553392/perplexed-by-svg-viewbox-width-height-etc 
   .attr("viewBox", [0, 0, width, height])
   .style('background-color', '#ffffffff')
+    .on("contextmenu", function (event) {
+        event.preventDefault();
+    }); // Prevent context menu showup
 
 // g svg element explanation https://jenkov.com/tutorials/svg/g-element.html
 const map = svg.append("g");
-const geo = map.append("g")
+const geo = map.append("g");
 
 Promise.all([
   d3.json("./static/adjearth.json"),
@@ -790,12 +793,22 @@ const zoom = d3.zoom()
   .scaleExtent([1, 30])
   .translateExtent([[0, 0], [width, height]])
 	.on('zoom', handleZoom)
-	
+    .filter((event) => {
+    // keep wheel zoom 
+    if (event.type === 'wheel') return true;
+
+    if (event.type === 'mousedown' || event.type === 'pointerdown') {
+      return event.button === 2; // 0=left, 1=middle, 2=right
+    }
+
+    // disable dblclick zoom
+    return false;
+  })
 
 function handleZoom(event) {
 		map.attr('transform', event.transform);
 }
 console.log('seperate')
 console.log(smallCountries.map(obj => obj['properties']['name']))
-svg.call(zoom).on("dblclick.zoom", null);
+svg.call(zoom)
 });
