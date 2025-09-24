@@ -224,7 +224,7 @@ const resetButton = UI.append("text")
   .style("opacity", "0")
 
 const clickOnText = UI.append("text")
-  .text("Click a region to start.")
+  .text("Click a Region to Start | Right click to pan & scroll to zoom")
   .attr("dominant-baseline", "central")
   .attr("font-size", 20)
   .attr("x", width / 2)
