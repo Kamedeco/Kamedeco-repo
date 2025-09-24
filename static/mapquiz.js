@@ -790,6 +790,7 @@ const zoom = d3.zoom()
   .scaleExtent([1, 30])
   .translateExtent([[0, 0], [width, height]])
 	.on('zoom', handleZoom)
+	.on("dblclick.zoom", null);
 
 function handleZoom(event) {
 		map.attr('transform', event.transform);
