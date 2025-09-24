@@ -790,12 +790,12 @@ const zoom = d3.zoom()
   .scaleExtent([1, 30])
   .translateExtent([[0, 0], [width, height]])
 	.on('zoom', handleZoom)
-	.on("dblclick.zoom", null);
+	
 
 function handleZoom(event) {
 		map.attr('transform', event.transform);
 }
 console.log('seperate')
 console.log(smallCountries.map(obj => obj['properties']['name']))
-svg.call(zoom);
+svg.call(zoom).on("dblclick.zoom", null);
 });
