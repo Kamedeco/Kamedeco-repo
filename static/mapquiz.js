@@ -748,8 +748,10 @@ function reset() {
     .style("cursor", "default")
 
   if (labelsShown) {
-	  labels.style("opacity", 1)
-	  labelBoxes.style('opacity', 1)
+	  labels.transition().duration(0)
+    labels.style("opacity", 1)
+	  labelBoxes.transition().duration(0)
+    labelBoxes.style('opacity', 1)
   }
 
   d3.select("#ClickCountryText")
