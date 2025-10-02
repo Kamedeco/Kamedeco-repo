@@ -1,0 +1,30 @@
+Custom outline countries dont change grey underneath outline BUG
+Game state should save when press back, delete on finish and quit button
+    Make sure it saves even when you exit mid game
+
+Accessing __data__ BUG
+Add legend for country regions colors
+Optimize everything (color subregions)
+Add loading when flag is loading -> optimize flag search (change to pngs?)
+Names are shortened, should be full names
+
+Sound effects, text to speech, click sounds
+
+Note: when clicked countries are stuck at 0.7 opacity
+
+Try to move with middle mouse (figure to remove defult)
+
+Adjust label positions and appearance
+Add country brief click facts during game and in explore mode (denonym, capital, currency, languages)
+Add world marathon mode for all countries (checkbox)
+Add world marathon score / average of all types of scores for each gamemode
+
+Click a country to type answer, randomize option available
+    Type various answers from checkbox (capital, languages, country)
+
+Quiz mode on selection or jsut seperate gamemode for facts
+View countries by language spoken, currency
+
+Random flag show and answer (type)
+
+Maybe struggling countries

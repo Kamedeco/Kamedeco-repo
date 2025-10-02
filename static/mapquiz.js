@@ -205,6 +205,8 @@ const flag = UI.append("svg:image")
 	.attr("y", flagOffset)
   .attr('width', flagWidth)
   .attr('height', flagHeight)
+  .attr("xlink:href", null)
+  .attr('opacity', '0')
 
 const scoreUI = UI.append("text")
   .attr("dominant-baseline", "central")
@@ -220,8 +222,15 @@ const resetButton = UI.append("text")
   .text("Back")
   .attr("x", 15)
 	.attr("y", qheight + 20)
-  .on("click", reset)
+  .on("click", backBtn)
   .style("opacity", "0")
+
+  const quitButton = UI.append("text")
+    .text("Quit Game")
+    .attr("x", width - 90)
+    .attr("y", qheight + 20)
+    .on("click", quitGame)
+    .style("opacity", 0)
 
 const clickOnText = UI.append("text")
   .text("Click a Region to Start | Right click to pan & scroll to zoom")
@@ -240,6 +249,11 @@ const clickOnText = UI.append("text")
 //     .style("top", `${yPos + 50}px`)
 //     .style("background-color", myColor(currentName))
 //     .html(`<strong>Date:</strong> ${d.name}`)
+
+function backBtn() {
+  saveGameState()
+  reset()
+}
 
 // See if country region is in regions in play, asigns class
 function getClass(d) { 
@@ -291,10 +305,10 @@ var mistakes = 0;
 var clicks = 0;
 var correctAnswers = 0;
 var clickedCountries = [];
-var scorePercent = 0;
 var selectedRegion;
 var randomCountry;
 var gameMode = "Countries";
+var gameOn = false;
 
 const modalContent = document.getElementById('exampleModal');
 const modal = new bootstrap.Modal(document.getElementById('exampleModal'));
@@ -380,6 +394,7 @@ window.clearScores = () => {
       localStorage.removeItem(regions[region] + option.value)
     }
   }
+  // localStorage.clear();
   updateScores(gameMode)
 }
 
@@ -469,6 +484,24 @@ window.switchMode = (btn) => {
   } 
 }
 
+function saveGameState() {
+  var object = {
+    'randomCountry': randomCountry,
+    'clicks': clicks,
+    'correctAnswers': correctAnswers,
+    'mistakes': mistakes,
+    'clickedCountries': clickedCountries
+  }
+  localStorage.setItem('game' + selectedRegion + gameMode, JSON.stringify(object)
+ )
+}
+
+function greyCountries(list, dclass) {
+  d3.selectAll("." + dclass).filter(d => list.includes(d.properties.name))
+    .transition()
+    .style("fill", "#d6d6d6");
+}
+
 // d parameter explanation https://stackoverflow.com/questions/24358842/use-of-d-in-function-literal-in-d3
 function handleClick(event, d) {
   var dclass = d3.select(this).attr("class");
@@ -480,10 +513,32 @@ function handleClick(event, d) {
   if (selectedRegion == null) {
     selectedRegion = dclass
     zoomContinent(d, dclass);
-    
-    randomCountryDatum = countries.filter(function() {return d3.select(this).attr("id") === randomCountry}).datum()
-    
+
+    // Reset variables
+    mistakes = 0;
+    clicks = 0;
+    correctAnswers = 0;
+    clickedCountries = [];
+
+    // Check if there is country info saved (delete on FINISH and QUIT)
+    var gameSave = localStorage.getItem('game' + selectedRegion + gameMode)
+    // Make it do it only once when in game
+    // Make sure to gray out all clicked countries''?
+    if (gameSave) {
+      var rtr = JSON.parse(gameSave)
+
+      mistakes = rtr['mistakes']
+      clicks = rtr['clicks']
+      correctAnswers = rtr['correctAnswers']
+      clickedCountries = rtr['clickedCountries']
+      randomCountry = rtr['randomCountry']
+
+      greyCountries(clickedCountries, dclass)
+      randomCountryDatum = countries.filter(function() {return d3.select(this).attr("id") === randomCountry}).datum()
+    }
     if (gameMode === "Countries") {
+      randomCountryDatum = countries.filter(function() {return d3.select(this).attr("id") === randomCountry}).datum()
+
       clickOnText
         .attr("x", width / 2)
         .transition().style("opacity", 1).text("Click On: " + randomCountry)
@@ -508,10 +563,14 @@ function handleClick(event, d) {
         .attr("x", width / 2)
         .transition().style("opacity", 1).text("Click on the Country of: " + countryObject.capital)
     }
-    
-    scoreUI
-      .transition().style("opacity", 1).text("0 / " + countryCount + " | 0%")
-    
+
+    score = Math.round(correctAnswers / clicks * 100);
+    if (isNaN(score)) {
+      score = 0;
+    }
+    scoreUI.text(correctAnswers + " / " + countryCount + " | " + score + "%")
+      .transition().style("opacity", 1)
+  
     return; 
   } 
 
@@ -574,6 +633,8 @@ function handleClick(event, d) {
       updateScores(gameMode)
     }
     gameEnded = true;
+    // Delete saved game info
+    localStorage.removeItem('game' + selectedRegion + gameMode);
     reset()
     setTimeout(displayScore(), 750)
     return;
@@ -588,10 +649,10 @@ function handleClick(event, d) {
   clicks++
   correctAnswers++
   score = Math.round(correctAnswers / clicks * 100)
+  
+  d3.selectAll("." + dclass).filter(object => object.properties.name === d.properties.name)
+    .transition().style("fill", "#d6d6d6");
 
-  // Update Map
-  d3.select(this).transition()
-    .style("fill", "#d6d6d6");
   labels.filter((function() {return d3.select(this).text() === d.properties.name;}))
     .transition().style("opacity", 1).transition().duration(2000).style("opacity", 0);
   labelBoxes.filter((function() {return d3.select(this).attr("id") === d.properties.name;}))
@@ -619,6 +680,9 @@ function handleMouseOver(event, d) {
     d3.selectAll("." + dclass).style("opacity", "0.7");
   } else {
     if (dclass === selectedRegion){
+      if (clickedCountries.includes(d.properties.name)) {
+        return;
+      }
       d3.select(this).style("opacity", "0.7"); 
     }
   }
@@ -631,9 +695,17 @@ function handleMouseOut(event, d) {
     d3.selectAll("." + dclass).style("opacity", "1");
   } else {
     if (dclass === selectedRegion){
+      if (clickedCountries.includes(d.properties.name)) {
+        return;
+      }
       d3.select(this).style("opacity", "1"); 
     }
   }
+}
+
+function quitGame() {
+  localStorage.removeItem('game' + selectedRegion + gameMode);
+  reset();
 }
 
 function reset() {
@@ -644,24 +716,25 @@ function reset() {
 
   // Reset variables
   selectedRegion = null;
-  clickedCountries = [];
-  clicks = 0
-  correctAnswers = 0
-  mistakes = 0
+  // clickedCountries = [];
+  // clicks = 0
+  // correctAnswers = 0
+  // mistakes = 0
 
   // Style UI
   flag.transition()
     .style("opacity", 0)
-    .attr("xlink:href", null)
-  quizBar.transition()
-    .style("opacity", 0)
+  // quizBar.transition()
+  //   .style("opacity", 0)
   clickOnText.transition()
-    .style("opacity", 0)
+    .text("Click a Region to Start | Right click to pan & scroll to zoom")
+    .style("opacity", 1)
   scoreUI.transition()
     .style("opacity", 0)
   countries.transition()
     .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
     .style("stroke", "black")
+    .style("opacity", 1) // Account for mouseout/over greycountries glitch
   smallCountriesOutlines.transition()
     .style("opacity", "1")
     .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
@@ -669,6 +742,9 @@ function reset() {
     .style("opacity", "1")
     .style("fill", function(d){return myColor(d3.select(this).attr("class")) })
   resetButton.transition().style("opacity", "0")
+    .style("cursor", "default")
+  quitButton
+    .transition().style("opacity", 0)
     .style("cursor", "default")
 
   if (labelsShown) {
@@ -703,6 +779,9 @@ function zoomContinent(d, dclass) {
   resetButton
     .transition().style("opacity", "1")
     .style("cursor", "pointer") // https://www.w3schools.com/cssref/tryit.php?filename=trycss_cursor
+  quitButton
+    .transition().style("opacity", 1)
+    .style("cursor", "pointer")
   quizBar.transition()
     .style("opacity", 0.75)
 
