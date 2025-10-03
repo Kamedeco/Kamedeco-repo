@@ -295,7 +295,6 @@ function colorSubregions(d){
   var subregionColor = d3.scaleOrdinal().domain(subregions)
     .range(["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fec5a6ff","#b3ffe9ff","#e5d8bd","#fddaec","#f2f2f2"])
 
-  console.log('check')
   console.log(d.properties.subregion)
   console.log(subregions)
   return subregionColor(d.properties.subregion)
@@ -321,7 +320,6 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstra
 
 window.getFact = () => {
   const text = document.getElementById("factText")
-    console.log("wtf")
   var random = Math.floor(Math.random() * countryDetails.length);
   randomCountry = countryDetails[random]
 
@@ -812,7 +810,7 @@ function getRandom(dclass) {
   }
   
   var random = Math.floor(Math.random() * regionCountries.length);
-  console.log("Random Country Is " + regionCountries[random]) // it get rid of everything except last country clicked, which is wh its rare
+  console.log("Random Country Is " + regionCountries[random]) // it get rid of everything except last country clicked, which is why its rare
   randomCountry = regionCountries[random]
 }
 
