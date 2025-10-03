@@ -384,7 +384,7 @@ window.showLabels = () => {
   
 }
 
-const maxScores = 1
+const maxScores = 2
 
 window.clearScores = () => {
   var scoreSelect = document.getElementById("score-mode-select")
@@ -534,11 +534,11 @@ function handleClick(event, d) {
       randomCountry = rtr['randomCountry']
 
       greyCountries(clickedCountries, dclass)
-      randomCountryDatum = countries.filter(function() {return d3.select(this).attr("id") === randomCountry}).datum()
     }
-    if (gameMode === "Countries") {
-      randomCountryDatum = countries.filter(function() {return d3.select(this).attr("id") === randomCountry}).datum()
 
+    randomCountryDatum = countries.filter(function() {return d3.select(this).attr("id") === randomCountry}).datum()
+
+    if (gameMode === "Countries") {
       clickOnText
         .attr("x", width / 2)
         .transition().style("opacity", 1).text("Click On: " + randomCountry)
