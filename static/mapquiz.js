@@ -233,7 +233,7 @@ const resetButton = UI.append("text")
     .style("opacity", 0)
 
 const clickOnText = UI.append("text")
-  .text("Click a Region to Start | Right click to pan & scroll to zoom")
+  .text("Click a Region to Start | Hold left click to pan & scroll to zoom")
   .attr("dominant-baseline", "central")
   .attr("font-size", 20)
   .attr("x", width / 2)
@@ -725,7 +725,7 @@ function reset() {
   // quizBar.transition()
   //   .style("opacity", 0)
   clickOnText.transition()
-    .text("Click a Region to Start | Right click to pan & scroll to zoom")
+    .text("Click a Region to Start | Hold left click to pan & scroll to zoom")
     .style("opacity", 1)
   scoreUI.transition()
     .style("opacity", 0)
@@ -872,14 +872,14 @@ const zoom = d3.zoom()
   .scaleExtent([1, 30])
   .translateExtent([[0, 0], [width, height]])
 	.on('zoom', handleZoom)
-    .filter((event) => {
-    // keep wheel zoom 
-    if (event.type === 'wheel') return true;
+  //   .filter((event) => {
+  //   // keep wheel zoom 
+  //   if (event.type === 'wheel') return true;
 
-    if (event.type === 'mousedown' || event.type === 'pointerdown') {
-      return event.button === 2; // 0=left, 1=middle, 2=right
-    }
-  })
+  //   if (event.type === 'mousedown' || event.type === 'pointerdown') {
+  //     return event.button === 2; // 0=left, 1=middle, 2=right
+  //   }
+  // })
 
 function handleZoom(event) {
 		map.attr('transform', event.transform);
