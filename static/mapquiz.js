@@ -7,9 +7,9 @@ const svg = d3.select("svg")
   // Viewbox explanaition https://stackoverflow.com/questions/14553392/perplexed-by-svg-viewbox-width-height-etc 
   .attr("viewBox", [0, 0, width, height])
   .style('background-color', '#ffffffff')
-    .on("contextmenu", function (event) {
-        event.preventDefault();
-    }); // Prevent context menu showup
+    // .on("contextmenu", function (event) {
+    //     event.preventDefault();
+    // }); // Prevent context menu showup
 
 // g svg element explanation https://jenkov.com/tutorials/svg/g-element.html
 const map = svg.append("g");
