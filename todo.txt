@@ -8,6 +8,9 @@ Optimize everything (color subregions)
 Add loading when flag is loading -> optimize flag search (change to pngs?)
 Names are shortened, should be full names
 
+Mobile fix label box being too big
+Find author of country details json
+
 Sound effects, text to speech, click sounds
 
 Note: when clicked countries are stuck at 0.7 opacity

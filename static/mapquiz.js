@@ -756,7 +756,7 @@ function reset() {
   d3.select("#ClickCountryText")
     .text("")
 
-  svg.transition().duration(750).call(
+  svg.transition().duration(500).call(
       zoom.transform,
       d3.zoomIdentity,
       d3.zoomTransform(svg.node()).invert([width / 2, height / 2]))
@@ -789,7 +789,7 @@ function zoomContinent(d, dclass) {
   getRandom(dclass)
     
   const [[x0, y0], [x1, y1]] = getBounds(dclass)
-  svg.transition().duration(1500).call(
+  svg.transition().duration(1000).call(
       zoom.transform,
       d3.zoomIdentity
         .translate(width / 2, height / 2)
