@@ -1,13 +1,26 @@
 const inputBox = document.getElementById('user-input');
+var countries = []
+var countryNames = []
+var randomCountry
 
+// d3.json("/static/adjearth.json", function (d) {
+//     console.log(d);
+// });
+
+fetch('./static/adjearth.json')
+  .then((response) => response.json())
+  .then((data) => {
+    for (const object of data["features"]) {
+        countries.push({
+            "name": object["properties"]["name"],
+            "iso_a2": object["properties"]["iso_a2_eh"]
+        })
+        countryNames.push(object["properties"]["name"])
+    }
+  })
+  .catch(console.error);
+console.log(countryNames)
 function start(mode) {
-    // Zero variables
-
-    // Create curated copy of country pool
-
-    // Get random country (set save)
-
-    // Set flag to random country
 
 }
 
@@ -45,12 +58,12 @@ function endGame() {
 inputBox.addEventListener('input', function() {
     var val = this.value.toLowerCase();
 
-    for (const word of wordparts) {
-        var sliced = word.slice(0, val.length).toLowerCase()
+    for (const name of countryNames) {
+        var sliced = name.slice(0, val.length).toLowerCase()
 
-        if (sliced === val && sliced.length != word.length) {
+        if (sliced === val && sliced.length != name.length) {
             // Create css
-            console.log(sliced.toUpperCase() + word.slice(val.length))
+            console.log(sliced.toUpperCase() + name.slice(val.length))
         }
     }
 })
