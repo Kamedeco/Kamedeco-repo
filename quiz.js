@@ -1,4 +1,5 @@
 const inputBox = document.getElementById('user-input');
+
 var countries = []
 var countryNames = []
 var randomCountry
@@ -11,6 +12,9 @@ fetch('./static/adjearth.json')
   .then((response) => response.json())
   .then((data) => {
     for (const object of data["features"]) {
+        const keyTypes = ["Country", "Sovereign country", "Sovereignty"];
+        
+        if (keyTypes.includes(object["properties"]["type"]))
         countries.push({
             "name": object["properties"]["name"],
             "iso_a2": object["properties"]["iso_a2_eh"]
